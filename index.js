@@ -1,40 +1,59 @@
-import express from "express"
-import dotenv from "dotenv"
-import session from "express-session"
-import cors from "cors"
-import SequelizeStore from "connect-session-sequelize"
-import db from "./config/Database.js"
+import express from "express";
+import cors from "cors";
+import session from "express-session";
+import dotenv from "dotenv";
+import fileupload from "express-fileupload";
+import db from "./config/Database.js";
+import SequelizeStore from "connect-session-sequelize";
+import Gururoute from "./routes/Gururoute.js"
+import KepsekRoute from "./routes/Kepsekroute.js"
+import AdminRoute from "./routes/Adminroute.js";
+import AuthRoute from "./routes/Authroute.js"
 
 dotenv.config();
-const app = express();
-const sessionStore = SequelizeStore(session.Store);
-const store = new sessionStore({
-    db : db,
-})
 
-// (async()=>{
-//     await db.sync()
-// })
-app.use(session({
-    secret:process.env.SESS_SECRET,
-    resave: false,
-    saveUninitialized : true,
-    store: store,
-    cookie:{
-        secure:"auto"
-    }
-}))
+const app = express();
+
+const sessionStore = SequelizeStore(session.Store);
+
+const store = new sessionStore({
+  db: db,
+});
+
+(async()=>{
+    await db.sync();
+})();
+
+store.sync();
+
 
 app.use(
-    cors({
-        credentials:true,
-        origin: "http://localhost:3000"
-    })
-)
+  session({
+    secret: process.env.SESS_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    store: store,
+    cookie: {
+      secure: "auto",
+    },
+  })
+);
 
-app.use(express.json())
+app.use(
+  cors({
+    credentials: true,
+    origin: "http://localhost:3000",
+  })
+);
 
-// store.sync();
-app.listen(process.env.APP_PORT,()=>{
-    console.log("server up and running")
-})
+app.use(fileupload());
+app.use(express.static("public"));
+app.use(express.json());
+app.use(Gururoute);
+app.use(KepsekRoute);
+app.use(AdminRoute);
+app.use(AuthRoute);
+
+app.listen(process.env.APP_PORT, () => {
+  console.log("Server Running");
+});
