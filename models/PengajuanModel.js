@@ -36,6 +36,14 @@ const Pengajuan = db.define(
         notEmpty: true,
       },
     },
+    validasi : {
+      type : DataTypes.STRING,
+      defaultValue : "Belum Validasi",
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
     file: {
       type: DataTypes.STRING,
       allowNull: false,

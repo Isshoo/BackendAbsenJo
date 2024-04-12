@@ -12,6 +12,7 @@ import AuthRoute from "./routes/Authroute.js"
 import PengajuanRoute from "./routes/PengajuanRoute.js"
 import KehadiranRoute from "./routes/Kehadiranroute.js"
 
+
 dotenv.config();
 
 const app = express();
@@ -22,9 +23,9 @@ const store = new sessionStore({
   db: db,
 });
 
-// (async()=>{
-//     await db.sync();
-// })();
+(async()=>{
+    await db.sync();
+})();
 
 // store.sync();
 

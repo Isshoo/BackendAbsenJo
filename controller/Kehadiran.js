@@ -1,4 +1,6 @@
+import Guru from "../models/GuruModel.js";
 import Kehadiran from "../models/KehadiranModel.js";
+import Kepsek from "../models/KepsekModel.js";
 
 function parseAndFormatDateString(dateString) {
   const parsedDate = new Date(dateString);
@@ -18,6 +20,12 @@ export const getKehadiranGuru = async (req, res) => {
       where: {
         id_guru: req.params.id,
       },
+      include:[{
+        model:Guru
+
+      }, {
+        model:Kepsek
+      }]
     });
     res.status(200).json(response);
   } catch (error) {

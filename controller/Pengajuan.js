@@ -1,10 +1,17 @@
 import Pengajuan from "../models/PengajuanModel.js";
 import path from "path";
 import fs from "fs";
+import Guru from "../models/GuruModel.js"
 
 export const getPengajuan = async (req, res) => {
   try {
-    const response = await Pengajuan.findAll();
+    const response = await Pengajuan.findAll({
+      include : [
+        {
+          model : Guru,
+        }
+      ]
+    });
     res.status(200).json(response);
   } catch (error) {
     res.status(404).json({ msg: "Data Tidak ditemukan" });
@@ -16,7 +23,12 @@ export const getPengajuanbyGuru = async (req, res) => {
     const response = await Pengajuan.findAll({
       where: {
         id_guru: req.params.idguru,
-      },
+      }, 
+      include : [
+        {
+          model : Guru,
+        }
+      ]
     });
     res.status(200).json(response);
   } catch (error) {
@@ -60,6 +72,7 @@ export const createPengajuan = async (req, res) => {
             keterangan: keterangan,
             tanggal: tanggal,
             jenis: jenis,
+            validasi : "Belum Divalidasi",
             url: url,
             file: uniqueFileName,
           });
@@ -71,5 +84,31 @@ export const createPengajuan = async (req, res) => {
     });
   } catch (error) {
     res.status(404).json({ msg: "Gagal Terupload" });
+  }
+};
+
+export const validasiPengajuan = async (req, res) => {
+  const pengajuan = await Pengajuan.findOne({
+    where: {
+      id_pengajuan: req.params.id,
+    },
+  });
+  if (!pengajuan) {
+    return res.status(404).json({ msg: "Kehadiran tidak ditemukan" });
+  }
+  try {
+    await Pengajuan.update(
+      {
+        validasi: "Sudah Divalidasi",
+      },
+      {
+        where: {
+          id_pengajuan: req.params.id,
+        },
+      }
+    );
+    res.status(200).json({ msg: "Waktu keluar berhasil diperbarui" });
+  } catch (error) {
+    res.status(500).json({ msg: "Gagal memperbarui waktu keluar" });
   }
 };
