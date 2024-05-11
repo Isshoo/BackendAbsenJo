@@ -8,9 +8,9 @@ import SequelizeStore from "connect-session-sequelize";
 import Gururoute from "./routes/Gururoute.js"
 import KepsekRoute from "./routes/Kepsekroute.js"
 import AdminRoute from "./routes/Adminroute.js";
-import AuthRoute from "./routes/Authroute.js"
-import PengajuanRoute from "./routes/PengajuanRoute.js"
-import KehadiranRoute from "./routes/Kehadiranroute.js"
+import AuthRoute from "./routes/Authroute.js";
+import PengajuanRoute from "./routes/PengajuanRoute.js";
+import KehadiranRoute from "./routes/Kehadiranroute.js";
 
 
 dotenv.config();
@@ -23,9 +23,9 @@ const store = new sessionStore({
   db: db,
 });
 
-(async()=>{
-    await db.sync();
-})();
+// (async()=>{
+//     await db.sync();
+// })();
 
 // store.sync();
 
@@ -57,7 +57,7 @@ app.use(KepsekRoute);
 app.use(AdminRoute);
 app.use(AuthRoute);
 app.use(PengajuanRoute);
-app.use(KehadiranRoute)
+app.use(KehadiranRoute);
 
 app.listen(process.env.APP_PORT, () => {
   console.log("Server Running");
