@@ -27,11 +27,20 @@ export const getKepsekbyId = async (req, res) => {
 
 export const createKepsek = async (req, res) => {
   try {
-    const { No_daftar, NIP, nama, ttl, alamat, jenis_kelamin } = req.body;
+    const { 
+      No_Daftar,
+      NIP,
+      nama,
+      thnMasuk,
+      noHP,
+      agama,
+      ttl,
+      alamat,
+      jenis_kelamin, } = req.body;
 
     let noDaftar;
 
-    if (!No_daftar || No_daftar === "") {
+    if (!No_Daftar || No_Daftar === "") {
       const maxNoDaftar = await Kepsek.max("No_daftar");
 
       if (maxNoDaftar === null) {
@@ -39,13 +48,13 @@ export const createKepsek = async (req, res) => {
       } else {
         const nextNoDaftar = (parseInt(maxNoDaftar) + 1)
           .toString()
-          .padStart(3, "0");
+          .padStart(2, "0");
         noDaftar = nextNoDaftar;
       }
     } else {
-      noDaftar = No_daftar;
+      noDaftar = No_Daftar;
     }
-    const Passing = nama.split(" ")[0].toLowerCase() + NIP.slice(-3) + noDaftar;
+    const Passing =  noDaftar + nama.split(" ")[0].toLowerCase();
     const hashPassword = await argon2.hash(Passing);
 
     if (!req.files || !req.files.file) {
@@ -80,13 +89,16 @@ export const createKepsek = async (req, res) => {
             id_kepsek: NIP,
             NIP: NIP,
             nama: nama,
+            thnMasuk: thnMasuk,
+            noHP: noHP,
+            agama: agama,
             ttl: ttl,
             alamat: alamat,
             jenis_kelamin: jenis_kelamin,
             url: url,
             role: "Kepsek",
             file: uniqueFileName,
-            username: NIP.slice(-3) + noDaftar,
+            username: No_Daftar,
             password: hashPassword,
           });
           res.status(200).json({ msg: "File Berhasil Terupload" });
@@ -99,6 +111,85 @@ export const createKepsek = async (req, res) => {
     res.status(500).json({ msg: error.message });
   }
 };
+
+
+
+export const updateKepsek = async (req, res) => {
+  try {
+    const kepsek = await Kepsek.findOne({
+      where: {
+        id_kepsek: req.params.id
+      }
+    });
+
+    if (!kepsek) {
+      return res.status(404).json({ msg: "Data tidak ditemukan" });
+    }
+
+    let uniqueFileName = kepsek.file;
+    if (req.files && req.files.file) {
+      const file = req.files.file;
+      const fileSize = file.size;
+      const ext = path.extname(file.name);
+      const allowedTypes = [".png", ".jpg", ".jpeg"];
+
+      if (!allowedTypes.includes(ext.toLowerCase())) {
+        return res.status(422).json({ msg: "Format Tidak Mendukung" });
+      }
+
+      if (fileSize > 5000000) {
+        return res.status(422).json({ msg: "File Tidak Bisa Lebih Dari 5 MB" });
+      }
+
+      const timestamp = new Date().getTime();
+      uniqueFileName = `${timestamp}_${file.md5}${ext}`;
+
+      const filepath = `./public/fotoKepsek/${kepsek.file}`;
+      fs.unlinkSync(filepath);
+
+      file.mv(`./public/fotoKepsek/${uniqueFileName}`, (err) => {
+        if (err) {
+          return res.status(500).json({ msg: err.message });
+        }
+      });
+    }
+
+    const url = `${req.protocol}://${req.get("host")}/fotoKepsek/${uniqueFileName}`;
+
+    const {
+      NIP,
+      nama,
+      noHP,
+      ttl,
+      alamat,
+      jenis_kelamin
+    } = req.body;
+
+    const Passing = kepsek.id_kepsek + nama.split(" ")[0].toLowerCase();
+    const hashPassword = await argon2.hash(Passing);
+
+    try {
+      await kepsek.update({
+        NIP: NIP,
+        nama: nama,
+        noHP: noHP,
+        ttl: ttl,
+        alamat: alamat,
+        jenis_kelamin: jenis_kelamin,
+        url: url,
+        file: uniqueFileName,
+        password: hashPassword
+      });
+      res.status(200).json({ msg: "Data Kepsek Berhasil Terupdate" });
+    } catch (error) {
+      res.status(404).json({ msg: "Data Kepsek Gagal Terupdate" });
+    }
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
+
+
 
 export const deleteKepsek = async (req, res) => {
   try {

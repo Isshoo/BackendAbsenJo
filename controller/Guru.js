@@ -29,17 +29,21 @@ export const getGuruById = async (req, res) => {
 export const createGuru = async (req, res) => {
   try {
     const {
-      No_daftar,
+      No_Daftar,
       NIP,
       nama,
+      thnMasuk,
+      noHP,
+      agama,
       ttl,
       alamat,
       jenis_kelamin,
+      
     } = req.body;
 
     let noDaftar;
 
-    if (!No_daftar || No_daftar === "") {
+    if (!No_Daftar || No_Daftar === "") {
       const maxNoDaftar = await Guru.max("No_daftar");
 
       if (maxNoDaftar === null) {
@@ -51,15 +55,15 @@ export const createGuru = async (req, res) => {
         noDaftar = nextNoDaftar;
       }
     } else {
-      noDaftar = No_daftar;
+      noDaftar = No_Daftar;
     }
-    const Passing = nama.split(" ")[0].toLowerCase() + NIP.slice(-3) + noDaftar;
+    const Passing =  noDaftar + nama.split(" ")[0].toLowerCase();
     const hashPassword = await argon2.hash(Passing);
 
     if (!req.files || !req.files.file) {
       return res.status(400).json({ msg: "Tidak Ada File Dipilih" });
     }
-
+    
     const file = req.files.file;
     const fileSize = file.size;
     const ext = path.extname(file.name);
@@ -83,16 +87,19 @@ export const createGuru = async (req, res) => {
       } else {
         try {
           await Guru.create({
-            id_guru : NIP,
+            id_guru : No_Daftar,
             NIP: NIP,
             nama: nama,
+            thnMasuk: thnMasuk,
+            noHP: noHP,
+            agama: agama,
             ttl: ttl,
             alamat: alamat,
             jenis_kelamin: jenis_kelamin,
             url: url,
             role : "Guru",
             file: uniqueFileName,
-            username: NIP.slice(-3) + noDaftar,
+            username: nama.split(" ")[0].toLowerCase() + noDaftar,
             password: hashPassword,
           });
           res.status(200).json({ msg: "File Berhasil Terupload" });
@@ -108,6 +115,87 @@ export const createGuru = async (req, res) => {
 
 };
 
+export const updateGuru = async (req, res) => {
+  try {
+    const guru = await Guru.findOne({
+      where: {
+        id_guru: req.params.id
+      }
+    });
+
+    if (!guru) {
+      return res.status(404).json({ msg: "Data tidak ditemukan" });
+    }
+
+    let uniqueFileName = guru.file;
+    if (req.files && req.files.file) {
+      const file = req.files.file;
+      const fileSize = file.size;
+      const ext = path.extname(file.name);
+      const allowedTypes = [".png", ".jpg", ".jpeg"];
+
+      if (!allowedTypes.includes(ext.toLowerCase())) {
+        return res.status(422).json({ msg: "Format Tidak Mendukung" });
+      }
+
+      if (fileSize > 5000000) {
+        return res.status(422).json({ msg: "File Tidak Bisa Lebih Dari 5 MB" });
+      }
+
+      const timestamp = new Date().getTime();
+      uniqueFileName = `${timestamp}_${file.md5}${ext}`;
+
+      const filepath = `./public/fotoGuru/${guru.file}`;
+      fs.unlinkSync(filepath);
+
+      file.mv(`./public/fotoGuru/${uniqueFileName}`, (err) => {
+        if (err) {
+          return res.status(500).json({ msg: err.message });
+        }
+      });
+    }
+
+    const url = `${req.protocol}://${req.get("host")}/fotoGuru/${uniqueFileName}`;
+
+    const {
+      NIP,
+      nama,
+      noHP,
+      agama,
+      ttl,
+      alamat,
+      jenis_kelamin,
+      password
+    } = req.body;
+
+    const Passing = guru.id_guru + nama.split(" ")[0].toLowerCase();
+    const hashPassword = await argon2.hash(Passing);
+
+    try {
+      await guru.update({
+        NIP: NIP,
+        nama: nama,
+        noHP: noHP,
+        agama: agama,
+        ttl: ttl,
+        alamat: alamat,
+        jenis_kelamin: jenis_kelamin,
+        url: url,
+        file: uniqueFileName,
+        password: hashPassword
+      });
+      res.status(200).json({ msg: "Data Guru Berhasil Terupdate" });
+    } catch (error) {
+      res.status(404).json({ msg: "Data Guru Gagal Terupdate" });
+    }
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
+
+
+
+
 
 
 export const deleteGuru = async (req, res) => {
@@ -121,7 +209,7 @@ export const deleteGuru = async (req, res) => {
     if (!guru) {
       return res.status(404).json({ msg: "Data tidak ditemukan" });
     }
-    // Hapus data atlet
+    // Hapus data guru
     await guru.destroy();
 
     // Hapus gambar terkait

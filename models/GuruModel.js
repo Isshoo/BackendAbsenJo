@@ -20,7 +20,7 @@ const Guru = db.define(
     },
     NIP: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       validate: {
         notEmpty: true,
       },
@@ -32,7 +32,7 @@ const Guru = db.define(
         notEmpty: true,
       },
     },
-    ttl: {
+    thnMasuk: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
@@ -40,6 +40,27 @@ const Guru = db.define(
       },
     },
     alamat: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    noHP: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    agama: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    ttl: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {

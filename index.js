@@ -11,6 +11,7 @@ import AdminRoute from "./routes/Adminroute.js";
 import AuthRoute from "./routes/Authroute.js";
 import PengajuanRoute from "./routes/PengajuanRoute.js";
 import KehadiranRoute from "./routes/Kehadiranroute.js";
+import PiketRoute from "./routes/Piketroute.js";
 
 
 dotenv.config();
@@ -23,9 +24,9 @@ const store = new sessionStore({
   db: db,
 });
 
-// (async()=>{
-//     await db.sync();
-// })();
+(async()=>{
+    await db.sync();
+})();
 
 // store.sync();
 
@@ -58,6 +59,7 @@ app.use(AdminRoute);
 app.use(AuthRoute);
 app.use(PengajuanRoute);
 app.use(KehadiranRoute);
+app.use(PiketRoute);
 
 app.listen(process.env.APP_PORT, () => {
   console.log("Server Running");
