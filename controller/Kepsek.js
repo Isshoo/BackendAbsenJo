@@ -217,36 +217,23 @@ export const updateKepsek = async (req, res) => {
 
 
 export const deleteKepsek = async (req, res) => {
-  const kepsek = await Kepsek.findOne({
-    where: {
-      id_kepsek: req.params.id,
-    },
-  });
-  if (!kepsek) 
-    return res.status(404).json({ msg: "Data tidak ditemukan" });
-  
-
   try {
     const kepsek = await Kepsek.findOne({
-      where: {
-        id_kepsek: req.params.id,
-      }
-    });
-
+     where: {
+       id_kepsek: req.params.id,
+     },
+   });
+   if (!kepsek) {
+     return res.status(404).json({ msg: "Data tidak ditemukan" });
+   }
+   // Hapus data atlet
+   await kepsek.destroy();
    // Hapus gambar terkait
    const filepath = `./public/fotoKepsek/${kepsek.file}`;
    fs.unlinkSync(filepath);
-
-    // Hapus data kepsek
-    await kepsek.destroy({
-      where: {
-        id_kepsek: req.params.id,
-      }
-    });
-    res.status(200).json({ msg: "Data dan gambar terhapus" });
-  } catch (error) {
-    console.log(error.message);
-    res.status(404).json({ msg: "Terjadi kesalahan dalam menghapus data" });
-  }
-  
-}
+   res.status(200).json({ msg: "Data dan gambar terhapus" });
+ } catch (error) {
+   console.log(error.message);
+   res.status(404).json({ msg: "Terjadi kesalahan dalam menghapus data" });
+ }
+};
