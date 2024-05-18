@@ -10,18 +10,9 @@ export const createPiket = async (req, res) => {
   try {
     const { id_guru, tanggal, keterangan } = req.body;
 
-    const guru = await Guru.findOne({
-      where: {
-        id_guru: id_guru
-      }
-    });
-
-    if (!guru) {
-      return res.status(404).json({ msg: "Guru tidak ditemukan" });
-    }
 
     const newPiket = await Piket.create({
-      id_piket: generateIdPiket(),
+      
       id_guru: id_guru,
       tanggal: tanggal,
       keterangan: keterangan
@@ -67,7 +58,12 @@ export const updatePiket = async (req, res) => {
 
 export const getPiket = async (req, res) => {
   try {
-    const allPiket = await Piket.findAll();
+    const allPiket = await Piket.findAll({
+      include: [{
+        model: Guru
+      }]
+      
+    });
     res.status(200).json(allPiket);
   } catch (error) {
     res.status(500).json({ msg: error.message });

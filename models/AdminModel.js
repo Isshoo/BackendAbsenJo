@@ -7,7 +7,7 @@ const Admin = db.define("Admin", {
   id_admin: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement : true,
+    defaultValue: "99999",
     allowNull: false,
     validate: {
       notEmpty: true,

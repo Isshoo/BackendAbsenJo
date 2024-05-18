@@ -29,7 +29,7 @@ export const getGuruById = async (req, res) => {
 export const createGuru = async (req, res) => {
   try {
     const {
-      No_Daftar,
+      id_guru,      
       NIP,
       nama,
       thnMasuk,
@@ -37,27 +37,28 @@ export const createGuru = async (req, res) => {
       agama,
       ttl,
       alamat,
-      jenis_kelamin,
-      
+      jenis_kelamin,      
     } = req.body;
 
     let noDaftar;
 
-    if (!No_Daftar || No_Daftar === "") {
-      const maxNoDaftar = await Guru.max("No_daftar");
+    if (!id_guru || id_guru === "") {
+      const maxNoDaftar = await Guru.max("id_guru");
 
       if (maxNoDaftar === null) {
-        noDaftar = "001";
+        noDaftar = "1";
       } else {
         const nextNoDaftar = (parseInt(maxNoDaftar) + 1)
-          .toString()
-          .padStart(3, "0");
+        
+          
         noDaftar = nextNoDaftar;
       }
-    } else {
-      noDaftar = No_Daftar;
-    }
-    const Passing =  noDaftar + nama.split(" ")[0].toLowerCase();
+      
+    } 
+    else 
+    {noDaftar = id_guru}
+
+    const Passing = nama.split(" ")[0].toLowerCase() + noDaftar;
     const hashPassword = await argon2.hash(Passing);
 
     if (!req.files || !req.files.file) {
@@ -87,7 +88,7 @@ export const createGuru = async (req, res) => {
       } else {
         try {
           await Guru.create({
-            id_guru : No_Daftar,
+            id_guru : id_guru,
             NIP: NIP,
             nama: nama,
             thnMasuk: thnMasuk,
@@ -127,6 +128,8 @@ export const updateGuru = async (req, res) => {
       return res.status(404).json({ msg: "Data tidak ditemukan" });
     }
 
+    
+
     let uniqueFileName = guru.file;
     if (req.files && req.files.file) {
       const file = req.files.file;
@@ -157,18 +160,37 @@ export const updateGuru = async (req, res) => {
 
     const url = `${req.protocol}://${req.get("host")}/fotoGuru/${uniqueFileName}`;
 
-    const {
+    const {    
+      id_guru,
       NIP,
       nama,
+    
       noHP,
       agama,
       ttl,
       alamat,
-      jenis_kelamin,
-      password
+      
     } = req.body;
 
-    const Passing = guru.id_guru + nama.split(" ")[0].toLowerCase();
+    let noDaftar;
+
+    if (!id_guru || id_guru === "") {
+      const maxNoDaftar = await Guru.max("id_guru");
+
+      if (maxNoDaftar === null) {
+        noDaftar = "1";
+      } else {
+        const nextNoDaftar = (parseInt(maxNoDaftar) + 1)
+        
+          
+        noDaftar = nextNoDaftar;
+      }
+      
+    } 
+    else 
+    {noDaftar = id_guru}
+
+    const Passing = nama.split(" ")[0].toLowerCase() + noDaftar ;
     const hashPassword = await argon2.hash(Passing);
 
     try {
@@ -179,11 +201,13 @@ export const updateGuru = async (req, res) => {
         agama: agama,
         ttl: ttl,
         alamat: alamat,
-        jenis_kelamin: jenis_kelamin,
+       
         url: url,
-        file: uniqueFileName,
-        password: hashPassword
-      });
+        
+        password: hashPassword,
+      },
+   { where : {id_guru : req.params.id}
+    });
       res.status(200).json({ msg: "Data Guru Berhasil Terupdate" });
     } catch (error) {
       res.status(404).json({ msg: "Data Guru Gagal Terupdate" });
@@ -198,27 +222,38 @@ export const updateGuru = async (req, res) => {
 
 
 
+
 export const deleteGuru = async (req, res) => {
+  const guru = await Guru.findOne({
+    where: {
+      id_guru: req.params.id,
+    },
+  });
+  if (!guru) 
+    return res.status(404).json({ msg: "Data tidak ditemukan" });
+  
+
   try {
     const guru = await Guru.findOne({
       where: {
         id_guru: req.params.id,
-      },
+      }
     });
 
-    if (!guru) {
-      return res.status(404).json({ msg: "Data tidak ditemukan" });
-    }
+   // Hapus gambar terkait
+   const filepath = `./public/fotoGuru/${guru.file}`;
+   fs.unlinkSync(filepath);
+
     // Hapus data guru
-    await guru.destroy();
-
-    // Hapus gambar terkait
-    const filepath = `./public/fotoGuru/${guru.file}`;
-    fs.unlinkSync(filepath);
-
+    await guru.destroy({
+      where: {
+        id_guru: req.params.id,
+      }
+    });
     res.status(200).json({ msg: "Data dan gambar terhapus" });
   } catch (error) {
     console.log(error.message);
     res.status(404).json({ msg: "Terjadi kesalahan dalam menghapus data" });
   }
-};
+  
+}

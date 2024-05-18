@@ -28,9 +28,6 @@ const Kehadiran = db.define(
     keluar: {
       type: DataTypes.STRING,
     },
-    keterangan: {
-      type: DataTypes.STRING,
-    },
   },
   {
     freezeTableName: true,

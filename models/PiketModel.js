@@ -8,18 +8,17 @@ const Piket = db.define(
     "Piket",
     {
     id_piket: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         primaryKey: true,
+        autoIncrement: true,   
         allowNull: false,
-        validate: {
-        notEmpty: true,
-        },
+        
     },
     id_guru: {
         type: DataTypes.INTEGER,
     },
     tanggal: {
-        type: DataTypes.DATE,
+        type: DataTypes.STRING,
     },
     keterangan: {
         type: DataTypes.STRING,

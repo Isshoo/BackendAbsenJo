@@ -8,15 +8,12 @@ const Guru = db.define(
   {
     id_guru: {
       type: DataTypes.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
       allowNull: false,
       validate: {
         notEmpty: true,
       },
-    },
-    No_Daftar : {
-        type: DataTypes.STRING,
-        defaultValue : "001"
     },
     NIP: {
       type: DataTypes.INTEGER,

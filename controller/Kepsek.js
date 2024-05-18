@@ -2,6 +2,7 @@ import Kepsek from "../models/KepsekModel.js";
 import path from "path";
 import fs from "fs";
 import argon2 from "argon2";
+import { where } from "sequelize";
 
 export const getKepsek = async (req, res) => {
   try {
@@ -28,6 +29,7 @@ export const getKepsekbyId = async (req, res) => {
 export const createKepsek = async (req, res) => {
   try {
     const { 
+      id_kepsek,
       No_Daftar,
       NIP,
       nama,
@@ -44,7 +46,7 @@ export const createKepsek = async (req, res) => {
       const maxNoDaftar = await Kepsek.max("No_daftar");
 
       if (maxNoDaftar === null) {
-        noDaftar = "001";
+        noDaftar = "01";
       } else {
         const nextNoDaftar = (parseInt(maxNoDaftar) + 1)
           .toString()
@@ -54,7 +56,7 @@ export const createKepsek = async (req, res) => {
     } else {
       noDaftar = No_Daftar;
     }
-    const Passing =  noDaftar + nama.split(" ")[0].toLowerCase();
+    const Passing = nama.split(" ")[0].toLowerCase() + noDaftar ;
     const hashPassword = await argon2.hash(Passing);
 
     if (!req.files || !req.files.file) {
@@ -86,7 +88,7 @@ export const createKepsek = async (req, res) => {
       } else {
         try {
           await Kepsek.create({
-            id_kepsek: NIP,
+            id_kepsek: id_kepsek,
             NIP: NIP,
             nama: nama,
             thnMasuk: thnMasuk,
@@ -98,7 +100,7 @@ export const createKepsek = async (req, res) => {
             url: url,
             role: "Kepsek",
             file: uniqueFileName,
-            username: No_Daftar,
+            username: noDaftar,
             password: hashPassword,
           });
           res.status(200).json({ msg: "File Berhasil Terupload" });
@@ -125,6 +127,8 @@ export const updateKepsek = async (req, res) => {
     if (!kepsek) {
       return res.status(404).json({ msg: "Data tidak ditemukan" });
     }
+
+    
 
     let uniqueFileName = kepsek.file;
     if (req.files && req.files.file) {
@@ -156,30 +160,51 @@ export const updateKepsek = async (req, res) => {
 
     const url = `${req.protocol}://${req.get("host")}/fotoKepsek/${uniqueFileName}`;
 
-    const {
+    const {    
+      No_Daftar,
       NIP,
       nama,
+    
       noHP,
+      agama,
       ttl,
       alamat,
-      jenis_kelamin
+      
     } = req.body;
 
-    const Passing = kepsek.id_kepsek + nama.split(" ")[0].toLowerCase();
-    const hashPassword = await argon2.hash(Passing);
+    let noDaftar;
 
+    if (!No_Daftar || No_Daftar === "") {
+      const maxNoDaftar = await Kepsek.max("No_daftar");
+
+      if (maxNoDaftar === null) {
+        noDaftar = "01";
+      } else {
+        const nextNoDaftar = (parseInt(maxNoDaftar) + 1)
+          .toString()
+          .padStart(2, "0");
+        noDaftar = nextNoDaftar;
+      }
+    } else {
+      noDaftar = No_Daftar;
+    }
+    const Passing = nama.split(" ")[0].toLowerCase() + noDaftar ;
+    const hashPassword = await argon2.hash(Passing);
     try {
       await kepsek.update({
         NIP: NIP,
         nama: nama,
         noHP: noHP,
+        agama: agama,
         ttl: ttl,
         alamat: alamat,
-        jenis_kelamin: jenis_kelamin,
+       
         url: url,
-        file: uniqueFileName,
-        password: hashPassword
-      });
+        
+        password: hashPassword,
+      },
+   { where : {id_kepsek : req.params.id}
+    });
       res.status(200).json({ msg: "Data Kepsek Berhasil Terupdate" });
     } catch (error) {
       res.status(404).json({ msg: "Data Kepsek Gagal Terupdate" });
@@ -192,26 +217,36 @@ export const updateKepsek = async (req, res) => {
 
 
 export const deleteKepsek = async (req, res) => {
+  const kepsek = await Kepsek.findOne({
+    where: {
+      id_kepsek: req.params.id,
+    },
+  });
+  if (!kepsek) 
+    return res.status(404).json({ msg: "Data tidak ditemukan" });
+  
+
   try {
     const kepsek = await Kepsek.findOne({
       where: {
         id_kepsek: req.params.id,
-      },
+      }
     });
 
-    if (!kepsek) {
-      return res.status(404).json({ msg: "Data tidak ditemukan" });
-    }
-    // Hapus data atlet
-    await kepsek.destroy();
+   // Hapus gambar terkait
+   const filepath = `./public/fotoKepsek/${kepsek.file}`;
+   fs.unlinkSync(filepath);
 
-    // Hapus gambar terkait
-    const filepath = `./public/fotoKepsek/${kepsek.file}`;
-    fs.unlinkSync(filepath);
-
+    // Hapus data kepsek
+    await kepsek.destroy({
+      where: {
+        id_kepsek: req.params.id,
+      }
+    });
     res.status(200).json({ msg: "Data dan gambar terhapus" });
   } catch (error) {
     console.log(error.message);
     res.status(404).json({ msg: "Terjadi kesalahan dalam menghapus data" });
   }
-};
+  
+}

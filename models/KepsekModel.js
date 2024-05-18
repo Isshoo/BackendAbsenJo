@@ -9,6 +9,7 @@ const Kepsek = db.define(
     id_kepsek: {
       type: DataTypes.INTEGER,
       primaryKey: true,
+      defaultValue : "9999",
       allowNull: false,
       validate: {
         notEmpty: true,
@@ -16,7 +17,7 @@ const Kepsek = db.define(
     },
     No_Daftar : {
       type: DataTypes.STRING,
-      defaultValue : "001"
+      defaultValue : "01"
   },
   NIP: {
     type: DataTypes.INTEGER,
