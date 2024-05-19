@@ -11,11 +11,11 @@ export const getAdmin = async (req, res) => {
 }
 
 
-const adm = 999;
+
 
 export const createAdmin = async (req, res) => {
     const {
-        adm,
+        
     id_admin,
     nama,
     username,
@@ -29,7 +29,7 @@ export const createAdmin = async (req, res) => {
     const hashPassword = await argon2.hash(password);
     try {
         await Admin.create({
-            id_admin : id_admin + adm,
+            id_admin : id_admin  ,
             nama : nama,
             username : username,
             password : hashPassword
