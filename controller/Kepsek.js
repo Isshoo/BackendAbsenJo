@@ -30,31 +30,34 @@ export const createKepsek = async (req, res) => {
   try {
     const { 
       id_kepsek,
-      No_Daftar,
+     
       NIP,
       nama,
       thnMasuk,
       noHP,
       agama,
-      ttl,
+      tmptLahir,
+      tglLahir,
+      status,
+      sisaCuti,
       alamat,
       jenis_kelamin, } = req.body;
 
     let noDaftar;
 
-    if (!No_Daftar || No_Daftar === "") {
-      const maxNoDaftar = await Kepsek.max("No_daftar");
+    if (!id_kepsek || id_kepsek === "") {
+      const maxNoDaftar = await Kepsek.max("id_kepsek");
 
       if (maxNoDaftar === null) {
-        noDaftar = "01";
+        noDaftar = "9999";
       } else {
         const nextNoDaftar = (parseInt(maxNoDaftar) + 1)
-          .toString()
-          .padStart(2, "0");
+        
+          
         noDaftar = nextNoDaftar;
       }
     } else {
-      noDaftar = No_Daftar;
+      noDaftar = id_kepsek;
     }
     const Passing = nama.split(" ")[0].toLowerCase() + noDaftar ;
     const hashPassword = await argon2.hash(Passing);
@@ -94,7 +97,10 @@ export const createKepsek = async (req, res) => {
             thnMasuk: thnMasuk,
             noHP: noHP,
             agama: agama,
-            ttl: ttl,
+            tmptLahir: tmptLahir,
+            tglLahir : tglLahir,
+            status: status,
+            sisaCuti: sisaCuti,
             alamat: alamat,
             jenis_kelamin: jenis_kelamin,
             url: url,
@@ -167,7 +173,10 @@ export const updateKepsek = async (req, res) => {
     
       noHP,
       agama,
-      ttl,
+      tmptLahir,
+      tglLahir,
+      status,
+      sisaCuti,
       alamat,
       
     } = req.body;
@@ -196,7 +205,10 @@ export const updateKepsek = async (req, res) => {
         nama: nama,
         noHP: noHP,
         agama: agama,
-        ttl: ttl,
+        tmptLahir: tmptLahir,
+            tglLahir : tglLahir,
+            status: status,
+            sisaCuti: sisaCuti,
         alamat: alamat,
        
         url: url,

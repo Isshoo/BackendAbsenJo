@@ -15,10 +15,7 @@ const Kepsek = db.define(
         notEmpty: true,
       },
     },
-    No_Daftar : {
-      type: DataTypes.STRING,
-      defaultValue : "01"
-  },
+    
   NIP: {
     type: DataTypes.INTEGER,
     allowNull: true,
@@ -61,7 +58,28 @@ const Kepsek = db.define(
       notEmpty: true,
     },
   },
-  ttl: {
+  tmptLahir: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+    },
+  },
+  tglLahir: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+    },
+  },
+  status: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+    },
+  },
+  sisaCuti: {
     type: DataTypes.STRING,
     allowNull: false,
     validate: {

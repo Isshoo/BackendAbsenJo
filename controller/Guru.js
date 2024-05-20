@@ -35,7 +35,10 @@ export const createGuru = async (req, res) => {
       thnMasuk,
       noHP,
       agama,
-      ttl,
+      tmptLahir,
+      tglLahir,
+      status,
+      sisaCuti,
       alamat,
       jenis_kelamin,      
     } = req.body;
@@ -94,7 +97,10 @@ export const createGuru = async (req, res) => {
             thnMasuk: thnMasuk,
             noHP: noHP,
             agama: agama,
-            ttl: ttl,
+            tmptLahir: tmptLahir,
+            tglLahir: tglLahir,
+            status: status,
+            sisaCuti: sisaCuti,
             alamat: alamat,
             jenis_kelamin: jenis_kelamin,
             url: url,
@@ -167,7 +173,10 @@ export const updateGuru = async (req, res) => {
     
       noHP,
       agama,
-      ttl,
+      tmptLahir,
+      tglLahir,
+      status,
+      sisaCuti,
       alamat,
       
     } = req.body;
@@ -199,7 +208,10 @@ export const updateGuru = async (req, res) => {
         nama: nama,
         noHP: noHP,
         agama: agama,
-        ttl: ttl,
+        tmptLahir: tmptLahir,
+        tglLahir: tglLahir,
+        status: status,
+        sisaCuti: sisaCuti,
         alamat: alamat,
        
         url: url,

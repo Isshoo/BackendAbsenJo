@@ -57,7 +57,28 @@ const Guru = db.define(
         notEmpty: true,
       },
     },
-    ttl: {
+    tmptLahir: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    tglLahir: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
+    sisaCuti: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
