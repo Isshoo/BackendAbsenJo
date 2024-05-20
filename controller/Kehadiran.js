@@ -14,6 +14,21 @@ function parseAndFormatDateString(dateString) {
   return `${day}${month}${year}${hours}${minutes}${seconds}`;
 }
 
+export const getKehadiran = async (req, res) => {
+  try {
+    const response = await Kehadiran.findAll({
+      
+      include: [{
+        model: Guru
+       
+      }, { model: Kepsek}]
+    });
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({ msg: error.message });
+  }
+};
+
 export const getKehadiranGuru = async (req, res) => {
   try {
     const response = await Kehadiran.findAll({
