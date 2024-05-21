@@ -29,7 +29,7 @@ export const getGuruById = async (req, res) => {
 export const createGuru = async (req, res) => {
   try {
     const {
-      id_guru,      
+           
       NIP,
       nama,
       thnMasuk,
@@ -43,9 +43,13 @@ export const createGuru = async (req, res) => {
       jenis_kelamin,      
     } = req.body;
 
+    let id_guru;
+
     let noDaftar;
 
     if (!id_guru || id_guru === "") {
+      
+    
       const maxNoDaftar = await Guru.max("id_guru");
 
       if (maxNoDaftar === null) {
@@ -61,7 +65,13 @@ export const createGuru = async (req, res) => {
     else 
     {noDaftar = id_guru}
 
-    const Passing = nama.split(" ")[0].toLowerCase() + noDaftar;
+    if(!NIP|| NIP ===""){
+      id_guru= noHP;
+    } else{
+      id_guru= NIP;
+    }
+
+    const Passing = nama.split(" ")[0].toLowerCase() + NIP;
     const hashPassword = await argon2.hash(Passing);
 
     if (!req.files || !req.files.file) {
@@ -106,7 +116,7 @@ export const createGuru = async (req, res) => {
             url: url,
             role : "Guru",
             file: uniqueFileName,
-            username: nama.split(" ")[0].toLowerCase() + noDaftar,
+            username: NIP,
             password: hashPassword,
           });
           res.status(200).json({ msg: "File Berhasil Terupload" });
@@ -199,7 +209,7 @@ export const updateGuru = async (req, res) => {
     else 
     {noDaftar = id_guru}
 
-    const Passing = nama.split(" ")[0].toLowerCase() + noDaftar ;
+    const Passing = nama.split(" ")[0].toLowerCase() + NIP ;
     const hashPassword = await argon2.hash(Passing);
 
     try {

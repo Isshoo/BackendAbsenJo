@@ -17,10 +17,7 @@ const Guru = db.define(
     },
     NIP: {
       type: DataTypes.INTEGER,
-      allowNull: true,
-      validate: {
-        notEmpty: true,
-      },
+      
     },
     nama: {
       type: DataTypes.STRING,
