@@ -5,14 +5,13 @@ import dotenv from "dotenv";
 import fileupload from "express-fileupload";
 import db from "./config/Database.js";
 import SequelizeStore from "connect-session-sequelize";
-import Gururoute from "./routes/Gururoute.js"
-import KepsekRoute from "./routes/Kepsekroute.js"
+import Gururoute from "./routes/Gururoute.js";
+import KepsekRoute from "./routes/Kepsekroute.js";
 import AdminRoute from "./routes/Adminroute.js";
 import AuthRoute from "./routes/Authroute.js";
 import PengajuanRoute from "./routes/PengajuanRoute.js";
 import KehadiranRoute from "./routes/Kehadiranroute.js";
 import PiketRoute from "./routes/Piketroute.js";
-
 
 dotenv.config();
 
@@ -24,12 +23,11 @@ const store = new sessionStore({
   db: db,
 });
 
-(async()=>{
-    await db.sync();
-})();
+// (async()=>{
+//     await db.sync();
+// })();
 
 // store.sync();
-
 
 app.use(
   session({
